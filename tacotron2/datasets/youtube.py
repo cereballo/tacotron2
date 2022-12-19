@@ -14,14 +14,20 @@ class YouTube(Dataset):
 
     def __init__(self, dataset_path: str):
         chunks_path = Path(dataset_path) / "chunks"
+        if not chunks_path.exists():
+            raise FileNotFoundError("Chunks path, %s, is not valid." % chunks_path)
+
         transcripts_path = Path(dataset_path) / "transcripts"
+        if not transcripts_path.exists():
+            raise FileNotFoundError("Transcripts, %s, path is not valid." % transcripts_path)
+            
         channels = transcripts_path.glob("*")
 
         self.transcript_paths = []
         self.chunk_paths = []
         for channel in channels:
-            self.transcript_paths.extend((transcripts_path.name / channel).glob("*"))
-            self.chunk_paths.extend((chunks_path.name / channel).glob("*"))
+            self.transcript_paths.extend((transcripts_path / channel.name).glob("*"))
+            self.chunk_paths.extend((chunks_path / channel.name).glob("*"))
 
     def __getitem__(self, idx):
         transcript = self.transcript_paths[idx].read_text()
@@ -30,3 +36,13 @@ class YouTube(Dataset):
 
     def __len__(self):
         return len(self.transcript_paths)
+
+
+def main():
+    ds = YouTube("/Users/smelsom/Code/audio-scraper/data/")
+    i = ds.__getitem__(0)
+    print(i)
+
+
+if __name__ == "__main__":
+    main()
