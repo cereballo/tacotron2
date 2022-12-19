@@ -1,4 +1,0 @@
-torch
-torchaudio
-pytorch-lightning
-toml

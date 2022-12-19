@@ -1,7 +1,7 @@
-import os
 from pathlib import Path
 import argparse
 
+import gdown
 import pytorch_lightning as pl
 import toml
 import torch
@@ -12,9 +12,16 @@ from tacotron2.config import Config
 from tacotron2.datasets.youtube import YouTube
 
 
+def download_pretrained_model():
+    url = 'https://drive.google.com/u/0/uc?id=1c5ZTuT7J08wLUoVZ2KkUs_VdZuJ86ZqA&export=download'
+    download_dir = Path("data", "models", "nvidia_pretrained_model")
+    download_dir.mkdir(parents=True, exist_ok=True)
+    filepath = download_dir / "tacotron2_statedict.pt"
+    if not filepath.exists():
+        gdown.download(url, str(filepath))
+
+
 def warm_start_model(checkpoint_path, model, ignore_layers):
-    assert os.path.isfile(checkpoint_path)
-    print(f"Warm starting model from checkpoint '{checkpoint_path}'")
     checkpoint_dict = torch.load(checkpoint_path, map_location='cpu')
     model_dict = checkpoint_dict['state_dict']
     if len(ignore_layers) > 0:
@@ -38,10 +45,12 @@ def main():
     config_dict = toml.loads(args.config.read_text())
     config = Config(**config_dict)
 
-    train_loader = DataLoader(YouTube(config.dataset_path))
+    train_loader = DataLoader(YouTube(config.experiment.dataset_path))
 
-    trainer = pl.Trainer()
-    trainer.fit(Tacotron2, train_loader)
+    download_pretrained_model()
+
+    # trainer = pl.Trainer()
+    # trainer.fit(Tacotron2, train_loader)
 
 
 if __name__ == '__main__':

@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "tacotron2"
+version = "0.1.0"
+description = "A fork of Nvidia's Tacotron2 implementation."
+authors = ["Stephen Melsom <sjmelsom@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+torch = "^1.13.1"
+torchaudio = "^0.13.1"
+pytorch-lightning = "^1.8.5.post0"
+toml = "^0.10.2"
+requests = "^2.28.1"
+gdown = "^4.6.0"
+scipy = "^1.9.3"
+
+[tool.poetry.group.dev.dependencies]
+black = "^22.12.0"
+pytest = "^7.2.0"
+pendulum = "^2.1.2"
+pylint = "^2.15.9"
+isort = "^5.11.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+train = "tacotron2.train:main"

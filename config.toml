@@ -7,22 +7,12 @@ ignore_layers=['embedding.weight']
 output_dir="out"
 checkpoint_path=""
 warm_start=false
-
-[data]
-text_cleaners=['english_cleaners']
-
-[audio]
-max_wav_value=32768.0
-sampling_rate=22050
-filter_length=1024
-hop_length=256
-win_length=1024
-n_mel_channels=80
-mel_fmin=0.0
-mel_fmax=8000.0
+dataset_path=""
+sampling_rate=16000
+use_saved_learning_rate=false
 
 [tacotron2]
-n_symbols=len(symbols)
+n_symbols=128  # probably wrong
 symbols_embedding_dim=512
 
 [tacotron2.encoder]
@@ -39,11 +29,9 @@ gate_threshold=0.5
 p_attention_dropout=0.1
 p_decoder_dropout=0.1
 
-# Attention parameters
+[tacotron2.decoder.attention]
 attention_rnn_dim=1024
 attention_dim=128
-
-# Location Layer parameters
 attention_location_n_filters=32
 attention_location_kernel_size=31
 
@@ -53,7 +41,6 @@ postnet_kernel_size=5
 postnet_n_convolutions=5
 
 [optimizer]
-use_saved_learning_rate=false
 learning_rate=1e-3
 weight_decay=1e-6
 grad_clip_thresh=1.0

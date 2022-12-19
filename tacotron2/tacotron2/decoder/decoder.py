@@ -12,6 +12,7 @@ from tacotron2.utils import get_mask_from_lengths
 
 @dataclass
 class DecoderConfig:
+    attention: AttentionConfig
     n_frames_per_step: int
     decoder_rnn_dim: int
     prenet_dim: int
@@ -19,7 +20,18 @@ class DecoderConfig:
     gate_threshold: float
     p_attention_dropout: float
     p_decoder_dropout: float
-    attention_config: AttentionConfig
+
+    def __init__(self, attention: AttentionConfig, n_frames_per_step: int, decoder_rnn_dim: int,
+        prenet_dim: int, max_decoder_steps: int, gate_threshold: float, p_attention_dropout: float,
+        p_decoder_dropout: float):
+        self.attention = AttentionConfig(**attention)
+        self.n_frames_per_step = n_frames_per_step
+        self.decoder_rnn_dim = decoder_rnn_dim
+        self.prenet_dim = prenet_dim
+        self.max_decoder_steps = max_decoder_steps
+        self.gate_threshold = gate_threshold
+        self.p_attention_dropout = p_attention_dropout
+        self.p_decoder_dropout = p_decoder_dropout
 
 
 class Decoder(nn.Module):
