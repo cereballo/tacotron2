@@ -20,10 +20,14 @@ class DecoderConfig:
     gate_threshold: float
     p_attention_dropout: float
     p_decoder_dropout: float
+    n_mel_channels: int
+    encoder_embedding_dim: int
+    attention_rnn_dim: int
 
     def __init__(self, attention: AttentionConfig, n_frames_per_step: int, decoder_rnn_dim: int,
         prenet_dim: int, max_decoder_steps: int, gate_threshold: float, p_attention_dropout: float,
-        p_decoder_dropout: float):
+        p_decoder_dropout: float, n_mel_channels: int, encoder_embedding_dim: int,
+        attention_rnn_dim: int):
         self.attention = AttentionConfig(**attention)
         self.n_frames_per_step = n_frames_per_step
         self.decoder_rnn_dim = decoder_rnn_dim
@@ -32,6 +36,9 @@ class DecoderConfig:
         self.gate_threshold = gate_threshold
         self.p_attention_dropout = p_attention_dropout
         self.p_decoder_dropout = p_decoder_dropout
+        self.n_mel_channels = n_mel_channels
+        self.encoder_embedding_dim = encoder_embedding_dim
+        self.attention_rnn_dim = attention_rnn_dim
 
 
 class Decoder(nn.Module):
@@ -50,7 +57,7 @@ class Decoder(nn.Module):
             config.prenet_dim + config.encoder_embedding_dim,
             config.attention_rnn_dim)
 
-        self.attention_layer = Attention(config.attention_config)
+        self.attention_layer = Attention(config.attention)
 
         self.decoder_rnn = nn.LSTMCell(
             config.attention_rnn_dim + config.encoder_embedding_dim,

@@ -3,18 +3,23 @@ from math import sqrt
 import pytorch_lightning as pl
 import torch
 from torch import nn
+from tacotron2.config import OptimizerConfig, Tacotron2Config
 
-from tacotron2.utils import to_gpu, get_mask_from_lengths
 from tacotron2.loss_function import Tacotron2Loss
-from tacotron2.tacotron2.encoder import Encoder
-from tacotron2.tacotron2.decoder.decoder import Decoder
-from tacotron2.tacotron2.postnet import PostNet
 from tacotron2.tacotron2.data_head import DataHead
-from tacotron2.config import Tacotron2Config
+from tacotron2.tacotron2.decoder.decoder import Decoder
+from tacotron2.tacotron2.encoder import Encoder
+from tacotron2.tacotron2.postnet import PostNet
+from tacotron2.utils import get_mask_from_lengths, to_gpu
+
+
 
 
 class Tacotron2(pl.LightningModule):
-    def __init__(self, config: Tacotron2Config):
+
+    opt_config: OptimizerConfig
+
+    def __init__(self, config: Tacotron2Config, opt_config: OptimizerConfig):
         super(Tacotron2, self).__init__()
         self.mask_padding = config.mask_padding
         self.n_mel_channels = config.n_mel_channels
@@ -23,11 +28,12 @@ class Tacotron2(pl.LightningModule):
         std = sqrt(2.0 / (config.n_symbols + config.symbols_embedding_dim))
         val = sqrt(3.0) * std  # uniform bounds for std
         self.embedding.weight.data.uniform_(-val, val)
+        self.opt_config = opt_config
 
         self.data_head = DataHead()
-        self.encoder = Encoder(config.encoder_config)
-        self.decoder = Decoder(config.decoder_config)
-        self.postnet = PostNet(config.postnet_config)
+        self.encoder = Encoder(config.encoder)
+        self.decoder = Decoder(config.decoder)
+        self.postnet = PostNet(config.postnet)
         self.loss = Tacotron2Loss()
 
     def parse_batch(self, batch):
@@ -84,8 +90,8 @@ class Tacotron2(pl.LightningModule):
     def configure_optimizers(self):
         return torch.optim.Adam(
             self.parameters(),
-            lr=self.config.learning_rate,
-            weight_decay=self.config.weight_decay
+            lr=self.opt_config.learning_rate,
+            weight_decay=self.opt_config.weight_decay
         )
 
     def __call__(self, inputs):

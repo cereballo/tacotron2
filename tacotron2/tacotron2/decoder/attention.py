@@ -13,6 +13,7 @@ class AttentionConfig:
     attention_dim: int
     attention_location_n_filters: int
     attention_location_kernel_size: int
+    encoder_embedding_dim: int
 
 
 class Attention(nn.Module):
@@ -25,7 +26,7 @@ class Attention(nn.Module):
             w_init_gain='tanh'
         )
         self.memory_layer = LinearNorm(
-            config.embedding_dim,
+            config.encoder_embedding_dim,
             config.attention_dim,
             bias=False,
             w_init_gain='tanh'

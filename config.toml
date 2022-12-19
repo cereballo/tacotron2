@@ -13,6 +13,9 @@ use_saved_learning_rate=false
 
 [tacotron2]
 n_symbols=128  # probably wrong
+mask_padding=true
+n_mel_channels=80
+n_frames_per_step=1
 symbols_embedding_dim=512
 
 [tacotron2.encoder]
@@ -28,21 +31,24 @@ max_decoder_steps=1000
 gate_threshold=0.5
 p_attention_dropout=0.1
 p_decoder_dropout=0.1
+n_mel_channels=80
+encoder_embedding_dim=512
+attention_rnn_dim=1024
 
 [tacotron2.decoder.attention]
 attention_rnn_dim=1024
 attention_dim=128
 attention_location_n_filters=32
 attention_location_kernel_size=31
+encoder_embedding_dim=512
 
 [tacotron2.postnet]
 postnet_embedding_dim=512
 postnet_kernel_size=5
 postnet_n_convolutions=5
+n_mel_channels=80
 
 [optimizer]
 learning_rate=1e-3
 weight_decay=1e-6
 grad_clip_thresh=1.0
-batch_size=64
-mask_padding=true  # set model's padded outputs to padded values

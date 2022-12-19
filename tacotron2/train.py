@@ -1,5 +1,5 @@
-from pathlib import Path
 import argparse
+from pathlib import Path
 
 import gdown
 import pytorch_lightning as pl
@@ -7,9 +7,9 @@ import toml
 import torch
 from torch.utils.data import DataLoader
 
-from tacotron2.tacotron2.tacotron2 import Tacotron2
 from tacotron2.config import Config
 from tacotron2.datasets.youtube import YouTube
+from tacotron2.tacotron2.tacotron2 import Tacotron2
 
 
 def download_pretrained_model():
@@ -49,8 +49,10 @@ def main():
 
     download_pretrained_model()
 
-    # trainer = pl.Trainer()
-    # trainer.fit(Tacotron2, train_loader)
+    tt2 = Tacotron2(config.tacotron2, config.optimizer)
+
+    trainer = pl.Trainer()
+    trainer.fit(model=tt2, train_dataloaders=train_loader)
 
 
 if __name__ == '__main__':

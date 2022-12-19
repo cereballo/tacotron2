@@ -1,6 +1,33 @@
 from dataclasses import dataclass
 
-from tacotron2.tacotron2.config import Tacotron2Config
+from tacotron2.tacotron2.decoder.decoder import DecoderConfig
+from tacotron2.tacotron2.encoder import EncoderConfig
+from tacotron2.tacotron2.postnet import PostNetConfig
+
+
+@dataclass
+class Tacotron2Config:
+    encoder: EncoderConfig
+    decoder: DecoderConfig
+    postner: PostNetConfig
+
+    n_symbols: int
+    mask_padding: bool
+    n_mel_channels: int
+    n_frames_per_step: int
+    symbols_embedding_dim: int
+
+    def __init__(self, encoder: EncoderConfig, decoder: DecoderConfig, 
+        postnet: PostNetConfig, n_symbols: int, symbols_embedding_dim: int,
+        mask_padding: bool, n_mel_channels: int, n_frames_per_step: int):
+        self.encoder = EncoderConfig(**encoder)
+        self.decoder = DecoderConfig(**decoder)
+        self.postnet = PostNetConfig(**postnet)
+        self.n_symbols = n_symbols
+        self.mask_padding = mask_padding
+        self.n_mel_channels = n_mel_channels
+        self.n_frames_per_step = n_frames_per_step
+        self.symbols_embedding_dim = symbols_embedding_dim
 
 
 @dataclass
@@ -23,8 +50,7 @@ class OptimizerConfig:
     learning_rate: float
     weight_decay: float
     grad_clip_thresh: float
-    batch_size: int
-    mask_padding: bool
+
 
 @dataclass
 class Config:

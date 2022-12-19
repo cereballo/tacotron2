@@ -11,6 +11,7 @@ class PostNetConfig:
     postnet_embedding_dim: int
     postnet_kernel_size: int
     postnet_n_convolutions: int
+    n_mel_channels: int
 
 
 class PostNet(nn.Module):
