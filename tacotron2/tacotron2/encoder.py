@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from torch import nn
-import torch.functional as F
+import torch.nn.functional as F
 
 from tacotron2.layers import ConvNorm
 

@@ -13,8 +13,6 @@ from tacotron2.tacotron2.postnet import PostNet
 from tacotron2.utils import get_mask_from_lengths, to_gpu
 
 
-
-
 class Tacotron2(pl.LightningModule):
 
     opt_config: OptimizerConfig
@@ -36,21 +34,18 @@ class Tacotron2(pl.LightningModule):
         self.postnet = PostNet(config.postnet)
         self.loss = Tacotron2Loss()
 
-    def parse_batch(self, batch):
-        text_padded, input_lengths, mel_padded, gate_padded, \
-            output_lengths = batch
+    def _parse_batch(self, batch):
+        text_padded, input_lengths, mel_padded, gate_padded, output_lengths = batch
         text_padded = to_gpu(text_padded).long()
         input_lengths = to_gpu(input_lengths).long()
         max_len = torch.max(input_lengths.data).item()
         mel_padded = to_gpu(mel_padded).float()
         gate_padded = to_gpu(gate_padded).float()
-        output_lengths = to_gpu(output_lengths).long()
 
         return (
-            (text_padded, input_lengths, mel_padded, max_len, output_lengths),
-            (mel_padded, gate_padded))
+            (text_padded, input_lengths, mel_padded, max_len), (mel_padded, gate_padded))
 
-    def parse_output(self, outputs, output_lengths=None):
+    def _parse_output(self, outputs, output_lengths=None):
         if self.mask_padding and output_lengths is not None:
             mask = ~get_mask_from_lengths(output_lengths)
             mask = mask.expand(self.n_mel_channels, mask.size(0), mask.size(1))
@@ -63,10 +58,14 @@ class Tacotron2(pl.LightningModule):
         return outputs
 
     def _forward(self, inputs):
-        text_inputs, text_lengths, wavs, max_len, output_lengths = inputs
-        text_lengths, output_lengths = text_lengths.data, output_lengths.data
-       
+        text_inputs, text_lengths, wavs, max_len = inputs
+        text_lengths = text_lengths.data
+
         mels = self.data_head(wavs)
+
+        # TODO: this isn't going to work because we need the original mel
+        # lengths and not the padded lengths.
+        output_lengths = torch.Tensor(mels.size(2))
 
         embedded_inputs = self.embedding(text_inputs).transpose(1, 2)
 
@@ -78,12 +77,12 @@ class Tacotron2(pl.LightningModule):
         mel_outputs_postnet = self.postnet(mel_outputs)
         mel_outputs_postnet = mel_outputs + mel_outputs_postnet
 
-        return self.parse_output(
+        return self._parse_output(
             [mel_outputs, mel_outputs_postnet, gate_outputs, alignments],
             output_lengths)
 
     def training_step(self, batch, batch_idx):
-        x, y = self.parse_batch(batch)
+        x, y = self._parse_batch(batch)
         y_pred = self._forward(x)
         return self.loss(y_pred, y)
 
@@ -106,7 +105,7 @@ class Tacotron2(pl.LightningModule):
         mel_outputs_postnet = self.postnet(mel_outputs)
         mel_outputs_postnet = mel_outputs + mel_outputs_postnet
 
-        outputs = self.parse_output(
+        outputs = self._parse_output(
             [mel_outputs, mel_outputs_postnet, gate_outputs, alignments])
 
         return outputs

@@ -3,22 +3,25 @@ from pathlib import Path
 
 import gdown
 import pytorch_lightning as pl
+import requests
 import toml
 import torch
 from torch.utils.data import DataLoader
+from tacotron2.text_audio_collator import TextAudioCollator
 
 from tacotron2.config import Config
-from tacotron2.datasets.youtube import YouTube
+from tacotron2.youtube_data import YouTubeData
 from tacotron2.tacotron2.tacotron2 import Tacotron2
 
 
-def download_pretrained_model():
-    url = 'https://drive.google.com/u/0/uc?id=1c5ZTuT7J08wLUoVZ2KkUs_VdZuJ86ZqA&export=download'
-    download_dir = Path("data", "models", "nvidia_pretrained_model")
-    download_dir.mkdir(parents=True, exist_ok=True)
-    filepath = download_dir / "tacotron2_statedict.pt"
-    if not filepath.exists():
-        gdown.download(url, str(filepath))
+def download_pretrained_model(url: str, dest: Path, site: str = "other"):
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if site == "google_drive":
+        if not dest.exists():
+            gdown.download(url, str(dest))
+    else:
+        download = requests.get(url)
+        dest.write_bytes(download.content)
 
 
 def warm_start_model(checkpoint_path, model, ignore_layers):
@@ -45,9 +48,23 @@ def main():
     config_dict = toml.loads(args.config.read_text())
     config = Config(**config_dict)
 
-    train_loader = DataLoader(YouTube(config.experiment.dataset_path))
+    download_pretrained_model(
+        config.experiment.pretrained_phonemizer_download_url,
+        Path(config.experiment.pretrained_phonemizer_path)
+    )
 
-    download_pretrained_model()
+    data_collator = TextAudioCollator(config.experiment.n_frames_per_step)
+    train_dataset = YouTubeData(
+        config.experiment.dataset_path,
+        config.experiment.pretrained_phonemizer_path
+    )
+    train_loader = DataLoader(train_dataset, collate_fn=data_collator)
+
+    download_pretrained_model(
+        config.experiment.pretrained_tacotron2_download_url,
+        Path(config.experiment.pretrained_tacotron2_path),
+        "google_drive"
+    )
 
     tt2 = Tacotron2(config.tacotron2, config.optimizer)
 

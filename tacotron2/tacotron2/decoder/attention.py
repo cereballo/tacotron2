@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 import torch
 from torch import nn
-import torch.functional as F
+import torch.nn.functional as F
 
 from tacotron2.layers import LinearNorm
 from tacotron2.tacotron2.decoder.location_layer import LocationLayer

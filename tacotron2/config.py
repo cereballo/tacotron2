@@ -43,6 +43,11 @@ class ExperimentConfig:
     dataset_path: str
     sampling_rate: int
     use_saved_learning_rate: bool
+    n_frames_per_step: int
+    pretrained_tacotron2_download_url: str
+    pretrained_tacotron2_path: str
+    pretrained_phonemizer_download_url: str
+    pretrained_phonemizer_path: str
 
 
 @dataclass

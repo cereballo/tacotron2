@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import torch
-import torch.functional as F
+import torch.nn.functional as F
 from torch.autograd import Variable
 from torch import nn
 
@@ -162,7 +162,7 @@ class Decoder(nn.Module):
         mel_outputs = torch.stack(mel_outputs).transpose(0, 1).contiguous()
         # decouple frames per step
         mel_outputs = mel_outputs.view(
-            mel_outputs.size(0), -1, self.n_mel_channels)
+            mel_outputs.size(0), -1, self.config.n_mel_channels)
         # (B, T_out, n_mel_channels) -> (B, n_mel_channels, T_out)
         mel_outputs = mel_outputs.transpose(1, 2)
 

@@ -7,9 +7,16 @@ ignore_layers=['embedding.weight']
 output_dir="out"
 checkpoint_path=""
 warm_start=false
-dataset_path=""
+dataset_path="/Users/smelsom/Code/audio-scraper/data/"
 sampling_rate=16000
 use_saved_learning_rate=false
+n_frames_per_step=1
+pretrained_tacotron2_download_url="https://drive.google.com/u/0/uc?id=1c5ZTuT7J08wLUoVZ2KkUs_VdZuJ86ZqA&export=download"
+pretrained_tacotron2_path="./data/models/nvidia_pretrained_model/tacotron2_statedict.pt"
+pretrained_phonemizer_download_url="https://public-asai-dl-models.s3.eu-central-1.amazonaws.com/DeepPhonemizer/en_us_cmudict_ipa_forward.pt"
+# pretrained_phonemizer_download_url="https://public-asai-dl-models.s3.eu-central-1.amazonaws.com/DeepPhonemizer/en_us_cmudict_forward.pt"
+pretrained_phonemizer_path="./data/models/deep_phonemizer/en_us_cmudict_ipa.pt"
+# pretrained_phonemizer_path="./data/models/deep_phonemizer/en_us_cmudict_forward.pt"
 
 [tacotron2]
 n_symbols=128  # probably wrong
