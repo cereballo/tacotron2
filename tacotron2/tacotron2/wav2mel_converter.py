@@ -12,7 +12,7 @@ class DataHeadConfig:
     n_mel: int
 
 
-class DataHead(nn.Module):
+class Wav2MelConverter(nn.Module):
     def __init__(
         self,
         input_freq=16000,

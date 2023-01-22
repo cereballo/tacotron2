@@ -25,10 +25,14 @@ class Encoder(nn.Module):
             conv_layer = nn.Sequential(
                 ConvNorm(config.encoder_embedding_dim,
                          config.encoder_embedding_dim,
-                         kernel_size=config.encoder_kernel_size, stride=1,
+                         kernel_size=config.encoder_kernel_size,
+                         stride=1,
                          padding=int((config.encoder_kernel_size - 1) / 2),
-                         dilation=1, w_init_gain='relu'),
-                nn.BatchNorm1d(config.encoder_embedding_dim))
+                         dilation=1,
+                         w_init_gain='relu'
+                ),
+                nn.BatchNorm1d(config.encoder_embedding_dim)
+            )
             convolutions.append(conv_layer)
         self.convolutions = nn.ModuleList(convolutions)
 

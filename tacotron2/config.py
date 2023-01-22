@@ -9,7 +9,7 @@ from tacotron2.tacotron2.postnet import PostNetConfig
 class Tacotron2Config:
     encoder: EncoderConfig
     decoder: DecoderConfig
-    postner: PostNetConfig
+    postnet: PostNetConfig
 
     n_symbols: int
     mask_padding: bool

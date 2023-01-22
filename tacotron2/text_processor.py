@@ -1,3 +1,5 @@
+from loguru import logger as log
+
 from dp.phonemizer import Phonemizer
 
 
@@ -13,6 +15,7 @@ class TextProcessor:
         'ŋ', 'œ', 'ɐ', 'ɑ', 'ɔ', 'ə', 'ɛ', 'ɝ', 'ɹ', 'ɡ', 'ɪ', 'ʁ', 'ʃ', 'ʊ',
         'ʌ', 'ʏ', 'ʒ', 'ʔ', 'ˈ', 'ˌ', 'ː', '̃', '̍', '̥', '̩', '̯', '͡', 'θ'
     ]
+    _replace_with_space = list('-')
     _punctuation = list('!\'(),.:;? ')
     _phonmizer: Phonemizer
     _symbol_id_map: dict[str, int]
@@ -25,5 +28,12 @@ class TextProcessor:
         self._symbol_id_map = {s: i for i, s in enumerate(self.symbols)}
 
     def __call__(self, text: str) -> list[int]:
-        symbols = self.phonemizer(text, lang="en_us")
-        return [self._symbol_id_map[s] for s in symbols]
+        log.info(f"Converting \"{text}\" to phonemes.")
+        phones = self.phonemizer(text, lang="en_us")
+        for s in self._replace_with_space:
+            log.info(f"Removing \"{s}\" from \"{phones}\".")
+            phones = phones.replace(s, " ")
+        log.info(f"Converted to \"{phones}\"")
+        phones = [self._symbol_id_map[s] for s in phones]
+        log.info(f"Symbol representation: {phones}")
+        return phones

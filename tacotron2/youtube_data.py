@@ -1,9 +1,10 @@
 from pathlib import Path
 
+from loguru import logger as log
 import torch
 from torch.utils.data import Dataset
 import torchaudio
-import torch.nn.functional as F
+from tacotron2.tacotron2.wav2mel_converter import Wav2MelConverter
 
 from tacotron2.text_processor import TextProcessor
 
@@ -16,6 +17,7 @@ class YouTubeData(Dataset):
     transcript_paths: list[Path]
     chunk_paths: list[Path]
     text_processor: TextProcessor
+    wav2mel_converter: Wav2MelConverter
 
     def __init__(self, dataset_path: str, phonemizer_path: str):
         chunks_path = Path(dataset_path) / "chunks"
@@ -25,6 +27,8 @@ class YouTubeData(Dataset):
         transcripts_path = Path(dataset_path) / "transcripts"
         if not transcripts_path.exists():
             raise FileNotFoundError("Transcripts, %s, path is not valid." % transcripts_path)
+
+        self.wav2mel_converter = Wav2MelConverter()
             
         yt_channels = transcripts_path.glob("*")
 
@@ -39,8 +43,10 @@ class YouTubeData(Dataset):
     def __getitem__(self, idx):
         transcript = self.transcript_paths[idx].read_text().strip()
         phone_tensors = self._preprocess_text(transcript)
+        log.info(f"Loading audio from: {self.chunk_paths[idx]}")
         chunk, _ = torchaudio.load(self.chunk_paths[idx])
-        return phone_tensors, chunk[0]
+        mel = self.wav2mel_converter(chunk[0])
+        return phone_tensors, mel
 
     def _preprocess_text(self, text: str):
         return torch.LongTensor(self.text_processor(text))

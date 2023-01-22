@@ -6,7 +6,6 @@ from torch import nn
 from tacotron2.config import OptimizerConfig, Tacotron2Config
 
 from tacotron2.loss_function import Tacotron2Loss
-from tacotron2.tacotron2.data_head import DataHead
 from tacotron2.tacotron2.decoder.decoder import Decoder
 from tacotron2.tacotron2.encoder import Encoder
 from tacotron2.tacotron2.postnet import PostNet
@@ -28,7 +27,6 @@ class Tacotron2(pl.LightningModule):
         self.embedding.weight.data.uniform_(-val, val)
         self.opt_config = opt_config
 
-        self.data_head = DataHead()
         self.encoder = Encoder(config.encoder)
         self.decoder = Decoder(config.decoder)
         self.postnet = PostNet(config.postnet)
@@ -41,9 +39,12 @@ class Tacotron2(pl.LightningModule):
         max_len = torch.max(input_lengths.data).item()
         mel_padded = to_gpu(mel_padded).float()
         gate_padded = to_gpu(gate_padded).float()
+        output_lengths = to_gpu(output_lengths).long()
 
         return (
-            (text_padded, input_lengths, mel_padded, max_len), (mel_padded, gate_padded))
+            (text_padded, input_lengths, mel_padded, max_len, output_lengths),
+            (mel_padded, gate_padded)
+        )
 
     def _parse_output(self, outputs, output_lengths=None):
         if self.mask_padding and output_lengths is not None:
@@ -58,14 +59,8 @@ class Tacotron2(pl.LightningModule):
         return outputs
 
     def _forward(self, inputs):
-        text_inputs, text_lengths, wavs, max_len = inputs
+        text_inputs, text_lengths, mels, max_len, output_lengths = inputs
         text_lengths = text_lengths.data
-
-        mels = self.data_head(wavs)
-
-        # TODO: this isn't going to work because we need the original mel
-        # lengths and not the padded lengths.
-        output_lengths = torch.Tensor(mels.size(2))
 
         embedded_inputs = self.embedding(text_inputs).transpose(1, 2)
 
