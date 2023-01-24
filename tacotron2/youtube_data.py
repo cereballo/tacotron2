@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from loguru import logger as log
 import torch
 from torch.utils.data import Dataset
 import torchaudio
@@ -43,7 +42,6 @@ class YouTubeData(Dataset):
     def __getitem__(self, idx):
         transcript = self.transcript_paths[idx].read_text().strip()
         phone_tensors = self._preprocess_text(transcript)
-        log.info(f"Loading audio from: {self.chunk_paths[idx]}")
         chunk, _ = torchaudio.load(self.chunk_paths[idx])
         mel = self.wav2mel_converter(chunk[0])
         return phone_tensors, mel
