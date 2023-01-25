@@ -5,7 +5,13 @@ import torch
 
 def get_mask_from_lengths(lengths):
     max_len = torch.max(lengths).item()
-    ids = torch.arange(0, max_len, out=torch.LongTensor(max_len))
+    if torch.has_cuda:
+        device = "cuda"
+    elif torch.has_mps:
+        device = "mps"
+    else:
+        device = "cpu"
+    ids = torch.arange(0, max_len, out=torch.empty(max_len, dtype=torch.long, device=device))
     mask = (ids < lengths.unsqueeze(1)).bool()
     return mask
 
@@ -26,4 +32,6 @@ def to_gpu(x):
 
     if torch.cuda.is_available():
         x = x.cuda(non_blocking=True)
+    elif torch.has_mps:
+        x = x.to(torch.device("mps"))
     return torch.autograd.Variable(x)

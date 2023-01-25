@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Literal
 
 from tacotron2.tacotron2.decoder.decoder import DecoderConfig
 from tacotron2.tacotron2.encoder import EncoderConfig
@@ -48,6 +49,7 @@ class ExperimentConfig:
     pretrained_tacotron2_path: str
     pretrained_phonemizer_download_url: str
     pretrained_phonemizer_path: str
+    dataset: Literal["youtube", "ljspeech"]
 
 
 @dataclass
