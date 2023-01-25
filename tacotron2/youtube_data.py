@@ -48,7 +48,6 @@ class YouTubeData(Dataset):
 
     def _preprocess_text(self, text: str):
         return torch.LongTensor(self.text_processor(text))
-        # return F.one_hot(symbol_ids, num_classes=self.text_processor.n_symbols)
 
     def __len__(self):
         return len(self.transcript_paths)
@@ -58,7 +57,6 @@ def main():
     ds = YouTubeData("/Users/smelsom/Code/audio-scraper/data/", "en_us_cmudict_ipa.pt")
     i = ds.__getitem__(0)
     print(i)
-
 
 if __name__ == "__main__":
     main()

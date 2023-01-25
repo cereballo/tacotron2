@@ -26,8 +26,8 @@ class Wav2MelConverter(nn.Module):
         self.spec = Spectrogram(n_fft=n_fft, power=2)
 
         self.mel_scale = MelScale(
-            n_mels=n_mel, 
-            sample_rate=resample_freq, 
+            n_mels=n_mel,
+            sample_rate=resample_freq,
             n_stft=n_fft // 2 + 1
         )
 
